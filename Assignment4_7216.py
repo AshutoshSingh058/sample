@@ -1,173 +1,194 @@
-def inputpoly():
-    x=int(input("Enter degree of polynomial :"))
-    y=int(input("Enter number of terms in polynomial :"))
-    p=[0]*(x+1)
-    for i in range (0, y):
-        a,b=0,0
-        b=int(input("Enter the exponent of term: "))
-        a=int(input("Enter the coefficient of term: "))
-        p[b]=a
+#  Sparse Matrix Algorithm
 
-    return p
-
-def printpoly(p):
-    a=len(p)
-    for i in range (-1, -a-1, -1):
-        if(i!=-a and p[i]!=0):
-            print(p[i],"x^%d"%(a-i*(-1)),end=" + ")
+def sparseinput():
+    n=int(input("Enter the number of Rows: "))
+    m=int(input("Enter the number of Columns: "))
+    sp=[]
+    sp.append([n,m,0])
+    cnt=0
+    for i in range(0,n):
         
-        elif(i==-a and p[i]!=0 ):
-            print(p[i])
+        for j in range (0,m):
+            # x=[]
+            val=int(input("Enter the  Value Number :"))
+            if(val!=0):
+                sp.append([i, j, val])
+                cnt+=1
+            # if(len(x)>0):
+            #     sp.extend(x)
+    sp[0][2]=cnt
+    return sp
 
-def addpoly(p1, p2):
-    a=len(p1)
-    b=len(p2)
-    # p3=[]
-    if(a>b):
-        p3=p1.copy()
-        for i in range (0,b):
-            p3[i]+= p2[i]
+def print_sparse_matrix(sp):
+    for i in range (0, len(sp)):
+        print(sp[i])
+    return
 
-    else:
-        p3=p2.copy()
-        for i in range (0,a):
-            p3[i]+= p1[i]
+
+
+
+
+
+
+def sparse_simple_transpose(sp):
+    n=sp[0][2]              # Number of values in sparse matrix
+    col=sp[0][1]            # Number of Columns
+    sp2=[]
+    sp2.append([sp[0][1], sp[0][0], n])
+
+    for i in range (0, col):
+        for j in range (1, n):
+            if(sp[j][1]==i):
+                sp2.append([sp[j][1], sp[j][0], sp[j][2]])
+            
+    return sp2
+
+
+def sparse_fast_transpose(sp):
+    n=sp[0][2]              # Number of values in sparse matrix
+    col=sp[0][1]            # Number of Columns
+    sp2=[[0,0,0]]*(n+1)
+    sp2[0]=[sp[0][1], sp[0][0], n]
+
+    arr=[0]*(col)
+
+    for i in range (1, n):
+        arr[sp[i][1]]+=1
     
-    # print("Addition of two polynomials is :")
-    return p3
-
-def multipoly(p1,p2):
-    a=len(p1)
-    b=len(p2)
-    p3=[0]*(a+b-1)
-    for i in range(0,a):
-        for j in range (0,b):
-            p3[i+j]+=p1[i]*p2[j]
-
-    return p3
-   
-
-def evaluatepoly(p, x):
-    a=len(p)
-    s=0
-    for i in range(0, a):
-        s+=p[i]*(x**i)
+    # arr[0]+=1
+    # print(arr)
+    # x=0
     
-    return s
+    arr2=[0]*col
+    arr2[0]=1
+    for i in range (1,col):
+       arr2[i]+=arr2[i-1]+ arr[i-1]
+    #    x=arr[i] 
+    # print(arr2)
+    
 
 
-# 2nd representation methods
+    for i in range (1,n+1):
+        
+        sp2[arr2[sp[i][1]]]=[sp[i][1], sp[i][0], sp[i][2]]
+        arr2[sp[i][1]]+=1
+        
+            
+    return sp2
 
-def inputpoly2():
-    # x=int(input("Enter degree of polynomial :"))
-    y=int(input("Enter number of terms in polynomial :"))
-    p=[]
-    for i in range (0, y):
-        a,b=0,0
-        b=int(input("Enter the exponent of term: "))
-        a=int(input("Enter the coefficient of term: "))
-        p.append([b,a])
-    p.sort(reverse=True)
-    return p
+def addition_sparse_matrix(sp1, sp2):
+    p1=0
+    p2=0
+    sp3=[]
+    sp3.append([sp1[0][0], sp1[0][1],0])
 
-def printpoly2(p):
-    a=len(p) 
-    for i in range (0, a+1):
-        if(i!=a-1 ):
-            print(p[i][1],"x^%d"%p[i][0],end=" + ")
+    while(p1<=sp1[0][2] and p2<=sp2[0][2]):
+        if(sp1[p1][0]==sp2[p2][0] and sp1[p1][1]==sp2[p2][1]):
+            sp3.append([sp1[p1][0], sp1[p1][1], (sp1[p1][2]+sp2[p2][2])])
+            p1+=1
+            p2+=1
+            sp3[0][2]+=1
+        
+        elif(sp1[p1][0]==sp2[p2][0]):
+            if(sp1[p1][1]>sp2[p2][1]):
+                sp3.append(sp2[p2])
+                p2+=1
+            else:
+                sp3.append(sp1[p1])
+                p1+=1
+            sp3[0][2]+=1
+        
+        elif(sp1[p1][0]>sp2[p2][0]) :
+            sp3.append(sp2[p2])
+            p2+=1
+            sp3[0][2]+=1
+
         else:
-            print(p[i])
+            sp3.append(sp1[p1])
+            p1+=1
+            sp3[0][2]+=1
+        
+    while(p1<= sp1[0][2]):
+        sp3.append(sp1[p1])
+        p1+=1
+        sp3[0][2]+=1
 
-def addpoly2(p1, p2):
-    a=len(p1)
-    b=len(p2)
-    p3=[]
-    c,d=0,0
-    while(c<a and d<b):
-        if(p1[c][0]==p2[d][0]):
-            p3.append([p1[c][0], p1[c][1]+p2[c][1]])
-            c+=1
-            d+=1
-        elif(p1[c][0]>p2[d][0]):
-            p3.append(p2[d])
-            d+=1
-        elif(p1[c][0]<p2[d][0]):
-            p3.append(p1[c])
-            c+=1
+    while(p2<= sp2[0][2]):
+        sp3.append(sp2[p2])
+        p2+=1
+        sp3[0][2]+=1
     
-    while(c<a ):
-        p3.append(p1[c])
-        c+=1
-    
-    while(d<b ):
-        p3.append(p2[d])
-        d+=1
-    
-    return p3
+    del sp3[1]
+    sp3[0][2]-=1
+    # sp3[0][2]=len(sp3)-2
 
-def multipoly2(p1,p2):
-    a=p1[0][0]
-    b=p2[0][0]
-    x=len(p1)
-    y=len(p2)
-    print(p1)
-    print(p2)
-    p3=[0]*(a+b+1)
-    for i in range(0,x):
-        for j in range (0,y):
-            p3[i+j]+=p1[i][1]*p2[j][1]
-
-    return p3
-
-def evaluatepoly2(p, x):
-    a=len(p)
-    s=0
-    for i in range(0, a):
-        s+=p[i][1]*(x**p[i][0])
-    
-    return s
-
-# p1=inputpoly()
-# p2=inputpoly()
-
-# print("Polynomial 1 is: ")
-# printpoly(p1)
-# print("Polynomial 2 is: ")
-# printpoly(p2)
+    return sp3
 
 
-# print("Addition of polynomials: ")
-# printpoly(addpoly(p1, p2))
-
-# print("Multiplication of polynomials: ",end=" ")
-# printpoly(multipoly(p1, p2))
+            
+# def multiplication_sparse_matrix(sp1, sp2):
 
 
-# x=int(input("Enter the number to be evaluated: "))
-# # p=inputpoly()
-# print("Evaluation of polynomial for %d is "% x, evaluatepoly(p1,x))
+        
 
 
 
+# Function Call
 
+def menu():
+    while True:
+        print("\nSparse Matrix Algorithm Menu")
+        print("1. Input Sparse Matrix")
+        print("2. Print Sparse Matrix")
+        print("3. Simple Transpose of Sparse Matrix")
+        print("4. Fast Transpose of Sparse Matrix")
+        print("5. Addition of Two Sparse Matrices")
+        print("6. Multiplication of Two Sparse Matrices")
+        print("7. Exit")
+        
+        choice = input("Enter your choice (1-7): ")
+        sp=[[0,0,0]]
+        if choice == '1':
+            sp = sparseinput()
+            print("Sparse Matrix Input Complete.")
 
+        elif choice == '2': 
+            print_sparse_matrix(sp)
+            
+        elif choice == '3':
+            sp_transposed = sparse_simple_transpose(sp)
+            print("\nSimple Transposed Sparse Matrix:")
+            print_sparse_matrix(sp_transposed)
+            
+        elif choice == '4':
+            sp_transposed = sparse_fast_transpose(sp)
+            print("\nFast Transposed Sparse Matrix:")
+            print_sparse_matrix(sp_transposed)
+        
+        elif choice == '5':
+            print("Input Sparse Matrix 1:")
+            sp1 = sparseinput()
+            print("Input Sparse Matrix 2:")
+            sp2 = sparseinput()
+            sp_sum = addition_sparse_matrix(sp1, sp2)
+            print("\nSum of Sparse Matrices:")
+            print_sparse_matrix(sp_sum)
+        
+        # elif choice == '6':
+        #     print("Input Sparse Matrix 1:")
+        #     sp1 = sparseinput()
+        #     print("Input Sparse Matrix 2:")
+        #     sp2 = sparseinput()
+        #     mp_sum = multiplication_sparse_matrix(sp1, sp2)
+        #     print("\nSum of Sparse Matrices:")
+        #     print_sparse_matrix(mp_sum)
 
-p1=inputpoly2()
-p2=inputpoly2()
+        elif choice == '7':
+            print("Exiting the program.")
+            break
+        
+        else:
+            print("Invalid choice. Please select a valid option.")
 
-# print("Polynomial 1 is: ")
-# printpoly2(p1)
-# print("Polynomial 2 is: ")
-# printpoly2(p2)
-
-
-# print("Addition of polynomials: ")
-# printpoly(addpoly2(p1, p2))
-
-print("Multiplication of polynomials: ",end=" ")
-printpoly(multipoly2(p1, p2))
-
-
-# x=int(input("Enter the number to be evaluated: "))
-# # p=inputpoly()
-# print("Evaluation of polynomial for %d is "% x, evaluatepoly2(p1,x))
+# Run the menu function
+menu()
