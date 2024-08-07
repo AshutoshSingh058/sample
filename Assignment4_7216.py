@@ -25,11 +25,6 @@ def print_sparse_matrix(sp):
     return
 
 
-
-
-
-
-
 def sparse_simple_transpose(sp):
     n=sp[0][2]              # Number of values in sparse matrix
     col=sp[0][1]            # Number of Columns
@@ -65,15 +60,11 @@ def sparse_fast_transpose(sp):
        arr2[i]+=arr2[i-1]+ arr[i-1]
     #    x=arr[i] 
     # print(arr2)
-    
-
 
     for i in range (1,n+1):
-        
         sp2[arr2[sp[i][1]]]=[sp[i][1], sp[i][0], sp[i][2]]
         arr2[sp[i][1]]+=1
-        
-            
+               
     return sp2
 
 def addition_sparse_matrix(sp1, sp2):
@@ -147,9 +138,10 @@ def menu():
         print("7. Exit")
         
         choice = input("Enter your choice (1-7): ")
-        sp=[[0,0,0]]
+        # sp=[[0,0,0]]
         if choice == '1':
-            sp = sparseinput()
+            global sp 
+            sp= sparseinput()
             print("Sparse Matrix Input Complete.")
 
         elif choice == '2': 
